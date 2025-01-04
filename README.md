@@ -21,38 +21,37 @@
 We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found and downloaded in: [NUDT-SIRST](https://github.com/YeRen123455/Infrared-Small-Target-Detection) and [IRSTD-1K](https://github.com/RuiZhang97/ISNet).
 
 Please place these datasets to the folder ./data.
-data/  
+data/
 
-├── NUDT-SIRST/  
-│   ├── trainval/  
-│   │   ├── images/  
-│   │   │   ├── 000002.png  
-│   │   │   ├── 000004.png  
-│   │   │   └── ...  
-│   │   ├── masks/  
-│   │   │   ├── 000002.png  
-│   │   │   ├── 000004.png  
-│   │   │   └── ...  
-│   └── test/  
-│       ├── images/  
-│       │   ├── 000001.png  
-│       │   ├── 000003.png  
-│       │   └── ...  
-│       ├── masks/  
-│       │   ├── 000001.png  
-│       │   ├── 000003.png  
-│       │   └── ...  
+├── NUDT-SIRST/
+│   ├── trainval/
+│   │   ├── images/
+│   │   │   ├── 000002.png
+│   │   │   ├── 000004.png
+│   │   │   └── ...
+│   │   ├── masks/
+│   │   │   ├── 000002.png
+│   │   │   ├── 000004.png
+│   │   │   └── ...
+│   └── test/
+│       ├── images/
+│       │   ├── 000001.png
+│       │   ├── 000003.png
+│       │   └── ...
+│       ├── masks/
+│       │   ├── 000001.png
+│       │   ├── 000003.png
+│       │   └── ...
 
-├── IRSTD-1k/  
-│   └── [same structure as NUDT-SIRST]  
-
-
+├── IRSTD-1k/
+│   └── [same structure as NUDT-SIRST]
 
 # Commands for Training
 
 * **Run train_7.py to train our network**
-  > Python train_7.py
-  >
+  ```Run
+  Python train_7.py
+  ```
 
 # Cited by
 
@@ -60,8 +59,11 @@ data/
 
 # Citation
 
-@misc{hu2024gradientneedgradientbasedattention,  
-      title={Gradient is All You Need: Gradient-Based Attention Fusion for Infrared Small Target Detection},
+
+
+```Citation
+@misc{hu2024gradientneedgradientbasedattention,
+    title={Gradient is All You Need: Gradient-Based Attention Fusion for Infrared Small Target Detection},
       author={Chen Hu and Yian Huang and Kexuan Li and Luping Zhang and Yiming Zhu and Yufei Peng and Tian Pu and Zhenming Peng},
       year={2024},
       eprint={2409.19599},
@@ -69,3 +71,4 @@ data/
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/2409.19599},
 }
+```
