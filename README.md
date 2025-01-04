@@ -21,6 +21,7 @@
 We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found and downloaded in: [NUDT-SIRST](https://github.com/YeRen123455/Infrared-Small-Target-Detection) and [IRSTD-1K](https://github.com/RuiZhang97/ISNet).
 
 Please place these datasets to the folder ./data.
+
 data/
 
 ├── NUDT-SIRST/
@@ -58,8 +59,6 @@ data/
 [《Adaptive Strategies for Multiscale Gradient Fusion in Neural Networks》](https://www.researchgate.net/profile/Xinyi-Zhang-235/publication/385103761_Adaptive_Strategies_for_Multiscale_Gradient_Fusion_in_Neural_Networks/links/6716a74209ba2d0c76174965/Adaptive-Strategies-for-Multiscale-Gradient-Fusion-in-Neural-Networks.pdf) indicates that our network is suitable for the tasks of visual light targets detection.
 
 # Citation
-
-
 
 ```Citation
 @misc{hu2024gradientneedgradientbasedattention,
