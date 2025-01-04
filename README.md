@@ -20,8 +20,8 @@
 
 We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found and downloaded in: [NUDT-SIRST](https://github.com/YeRen123455/Infrared-Small-Target-Detection) and [IRSTD-1K](https://github.com/RuiZhang97/ISNet).
 
-Please place these datasets to the folder ./datasets.
-datasets/  
+Please place these datasets to the folder ./data.
+data/  
 
 ├── NUDT-SIRST/  
 │   ├── trainval/  
@@ -46,8 +46,6 @@ datasets/
 ├── IRSTD-1k/  
 │   └── [same structure as NUDT-SIRST]  
 
-└── sirst_aug/  
-    └── [same structure as NUDT-SIRST]  
 
 
 # Commands for Training
