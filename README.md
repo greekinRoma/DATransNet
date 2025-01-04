@@ -46,6 +46,7 @@ datasets/
 └── sirst_aug/
     └── [same structure as NUDT-SIRST]
 
+
 # Commands for Training
 
 * **Run train_7.py to train our network**
