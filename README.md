@@ -21,31 +21,30 @@
 We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found and downloaded in: [NUDT-SIRST](https://github.com/YeRen123455/Infrared-Small-Target-Detection) and [IRSTD-1K](https://github.com/RuiZhang97/ISNet).
 
 Please place these datasets to the folder ./datasets.
-datasets/  
-├── NUDT-SIRST/  
-│   ├── trainval/  
-│   │   ├── images/  
-│   │   │   ├── 000002.png  
-│   │   │   ├── 000004.png  
-│   │   │   └── ...  
-│   │   ├── masks/  
-│   │   │   ├── 000002.png  
-│   │   │   ├── 000004.png  
-│   │   │   └── ...  
-│   └── test/  
-│       ├── images/  
-│       │   ├── 000001.png  
-│       │   ├── 000003.png  
-│       │   └── ...  
-│       ├── masks/  
-│       │   ├── 000001.png  
-│       │   ├── 000003.png  
-│       │   └── ...  
-├── IRSTD-1k/  
-│   └── [same structure as NUDT-SIRST]  
-└── sirst_aug/  
-    └── [same structure as NUDT-SIRST]  
-
+datasets/
+├── NUDT-SIRST/
+│   ├── trainval/
+│   │   ├── images/
+│   │   │   ├── 000002.png
+│   │   │   ├── 000004.png
+│   │   │   └── ...
+│   │   ├── masks/
+│   │   │   ├── 000002.png
+│   │   │   ├── 000004.png
+│   │   │   └── ...
+│   └── test/
+│       ├── images/
+│       │   ├── 000001.png
+│       │   ├── 000003.png
+│       │   └── ...
+│       ├── masks/
+│       │   ├── 000001.png
+│       │   ├── 000003.png
+│       │   └── ...
+├── IRSTD-1k/
+│   └── [same structure as NUDT-SIRST]
+└── sirst_aug/
+    └── [same structure as NUDT-SIRST]
 
 # Commands for Training
 
@@ -56,3 +55,15 @@ datasets/
 # Cited by
 
 [《Adaptive Strategies for Multiscale Gradient Fusion in Neural Networks》](https://www.researchgate.net/profile/Xinyi-Zhang-235/publication/385103761_Adaptive_Strategies_for_Multiscale_Gradient_Fusion_in_Neural_Networks/links/6716a74209ba2d0c76174965/Adaptive-Strategies-for-Multiscale-Gradient-Fusion-in-Neural-Networks.pdf) indicates that our network is suitable for the tasks of visual light targets detection.
+
+# Citation
+
+@misc{hu2024gradientneedgradientbasedattention,  
+      title={Gradient is All You Need: Gradient-Based Attention Fusion for Infrared Small Target Detection},
+      author={Chen Hu and Yian Huang and Kexuan Li and Luping Zhang and Yiming Zhu and Yufei Peng and Tian Pu and Zhenming Peng},
+      year={2024},
+      eprint={2409.19599},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2409.19599},
+}
