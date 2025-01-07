@@ -11,8 +11,8 @@ from model.RDIAN.model_RDIAN import RDIAN as RDIAN
 from model.GTransformer.segmentation import GTransformer
 from model.UNet.UNet import UNet
 from model.GTransformerv2.segmentation import GTransformerv2
-from model.GTransformerv4.segmentation import GTransformerv4
 from model.GTransformerv5.segmentation import GTransformerv5
+from model.DATransNet.segmentation import DATransNet
 from model.GTransformerv6.segmentation import GTransformerv6
 from model.GTransformerv7.segmentation import GTransformerv7
 from model.GTransformerv8.segmentation import GTransformerv8

@@ -42,8 +42,8 @@ class Net(nn.Module):
             self.model = ISTDU_Net()
         elif model_name == 'RDIAN':
             self.model = RDIAN()
-        elif model_name == 'GTransformerv4':
-            self.model = GTransformerv4()
+        elif model_name == 'DATransNet':
+            self.model = DATransNet()
         elif model_name == 'GTransformerv8':
             self.model = GTransformerv8()
         elif model_name =='GTransformerv10':

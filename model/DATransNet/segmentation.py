@@ -99,7 +99,7 @@ class Res_block(nn.Module):
         out = self.relu(out)
         return out
 
-class GTransformerv4(nn.Module):
+class DATransNet(nn.Module):
     def __init__(self,  n_channels=1, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
         super().__init__()
         self.vis = vis
