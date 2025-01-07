@@ -27,14 +27,14 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 parser = argparse.ArgumentParser(description="PyTorch ISTD")
 
-parser.add_argument("--model_names", default='ACM', type=str, nargs='+',
+parser.add_argument("--model_names", default=['GTransformerv10'], type=str, nargs='+',
                     help="model_name: 'ALCNet', 'ACM', "
                          "'DNANet', 'AGPCNet'")
-parser.add_argument("--dataset_names", default='NUDT-SIRST', type=str, nargs='+',
+parser.add_argument("--dataset_names", default=['NUDT-SIRST'], type=str, nargs='+',
                     help="dataset_name: 'NUDT-SIRST', 'IRSTD-1K', 'SIRST-aug','SIRST','NUAA-SIRST'")
 
 parser.add_argument("--dataset_dir", default='./data', type=str, help="train_dataset_dir")
-parser.add_argument("--batchSize", type=int, default=8, help="Training batch sizse")
+parser.add_argument("--batchSize", type=int, default=4, help="Training batch sizse")
 parser.add_argument("--save", default='./log5', type=str, help="Save path of checkpoints")
 parser.add_argument("--resume", default=None, type=list, help="Resume from exisiting checkpoints (default: None)")
 parser.add_argument("--nEpochs", type=int, default=400, help="Number of epochs")

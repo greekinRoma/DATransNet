@@ -17,4 +17,5 @@ from model.GTransformerv6.segmentation import GTransformerv6
 from model.GTransformerv7.segmentation import GTransformerv7
 from model.GTransformerv8.segmentation import GTransformerv8
 from model.GTransformerv9.segmentation import GTransformerv9
+from model.GTransformerv10.segmentation import GTransformerv10
 from model.SCTrans.segmentation import SCTrans
