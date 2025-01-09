@@ -23,7 +23,6 @@ We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found an
 Please place these datasets to the folder ./data.
 
 data/
-
 ├── NUDT-SIRST/
 │   ├── trainval/
 │   │   ├── images/
@@ -43,9 +42,25 @@ data/
 │       │   ├── 000001.png
 │       │   ├── 000003.png
 │       │   └── ...
-
 ├── IRSTD-1k/
-│   └── [same structure as NUDT-SIRST]
+│   ├── trainval/
+│   │   ├── images/
+│   │   │   ├── 000101.png
+│   │   │   ├── 000102.png
+│   │   │   └── ...
+│   │   ├── masks/
+│   │   │   ├── 000101.png
+│   │   │   ├── 000102.png
+│   │   │   └── ...
+│   └── test/
+│       ├── images/
+│       │   ├── 000201.png
+│       │   ├── 000202.png
+│       │   └── ...
+│       ├── masks/
+│       │   ├── 000201.png
+│       │   ├── 000202.png
+│       │   └── ...
 
 # Commands for Training
 
