@@ -22,48 +22,6 @@ We used NUDT-SIRST and IRSTD-1K for training. The two datasets could be found an
 
 Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGRSldQ?pwd=mxhe) with code of "mxhe".
 
-Please place these datasets to the folder ./data.
-
-data/
-├── NUDT-SIRST/
-│   ├── trainval/
-│   │   ├── images/
-│   │   │   ├── 000002.png
-│   │   │   ├── 000004.png
-│   │   │   └── ...
-│   │   ├── masks/
-│   │   │   ├── 000002.png
-│   │   │   ├── 000004.png
-│   │   │   └── ...
-│   └── test/
-│       ├── images/
-│       │   ├── 000001.png
-│       │   ├── 000003.png
-│       │   └── ...
-│       ├── masks/
-│       │   ├── 000001.png
-│       │   ├── 000003.png
-│       │   └── ...
-├── IRSTD-1k/
-│   ├── trainval/
-│   │   ├── images/
-│   │   │   ├── 000101.png
-│   │   │   ├── 000102.png
-│   │   │   └── ...
-│   │   ├── masks/
-│   │   │   ├── 000101.png
-│   │   │   ├── 000102.png
-│   │   │   └── ...
-│   └── test/
-│       ├── images/
-│       │   ├── 000201.png
-│       │   ├── 000202.png
-│       │   └── ...
-│       ├── masks/
-│       │   ├── 000201.png
-│       │   ├── 000202.png
-│       │   └── ...
-
 # Commands for Training
 
 * **Run train_7.py to train our network**
