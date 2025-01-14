@@ -66,7 +66,7 @@ data/
 
 * **Run train_7.py to train our network**
   ```Run
-  Python train_7.py
+  Python train.py
   ```
 
 # Cited by
