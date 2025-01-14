@@ -24,7 +24,7 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 
 # Commands for Training
 
-* **Run train_7.py to train our network**
+* **Run train.py to train our network**
   ```Run
   Python train.py
   ```
