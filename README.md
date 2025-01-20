@@ -36,13 +36,13 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 # Citation
 
 ```Citation
-@misc{hu2024gradientneedgradientbasedattention,
-    title={Gradient is All You Need: Gradient-Based Attention Fusion for Infrared Small Target Detection},
-      author={Chen Hu and Yian Huang and Kexuan Li and Luping Zhang and Yiming Zhu and Yufei Peng and Tian Pu and Zhenming Peng},
-      year={2024},
+@misc{hu2025datransnetdynamicattentiontransformer,
+      title={DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection}, 
+      author={Chen Hu and Yian Huang and Kexuan Li and Luping Zhang and Chang Long and Yiming Zhu and Tian Pu and Zhenming Peng},
+      year={2025},
       eprint={2409.19599},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2409.19599},
+      url={https://arxiv.org/abs/2409.19599}, 
 }
 ```
