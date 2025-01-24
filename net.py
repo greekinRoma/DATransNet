@@ -42,12 +42,18 @@ class Net(nn.Module):
             self.model = ISTDU_Net()
         elif model_name == 'RDIAN':
             self.model = RDIAN()
+        elif model_name == 'ISTDU_Net':
+            self.model = ISTDU_Net()
         elif model_name == 'DATransNet':
             self.model = DATransNet()
         elif model_name == 'GTransformerv8':
             self.model = GTransformerv8()
         elif model_name =='GTransformerv10':
             self.model = GTransformerv10()
+        elif model_name =='GTransformerv11':
+            self.model = GTransformerv11()
+        elif model_name == 'res_UNet':
+            self.model = res_UNet()
     def forward(self, img):
         return self.model(img)
 
