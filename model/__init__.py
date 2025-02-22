@@ -18,6 +18,9 @@ from model.GTransformerv8.segmentation import GTransformerv8
 from model.GTransformerv9.segmentation import GTransformerv9
 from model.GTransformerv10.segmentation import GTransformerv10
 from model.GTransformerv11.segmentation import GTransformerv11
+from model.GTransformerv12.segmentation import GTransformerv12
+from model.GTransformerv13.segmentation import GTransformerv13
+from model.GTransformerv14.segmentation import GTransformerv14
 from model.SCTrans.segmentation import SCTrans
 from model.ISTDU_Net.ctNet.ctNet import ISTDU_Net
 from model.ResUNet.model_res_UNet import res_UNet

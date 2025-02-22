@@ -16,7 +16,7 @@ class External_attention(nn.Module):
 
         self.conv1 = nn.Conv2d(c, c, 1)
 
-        self.k = 32 
+        self.k = c//8 # 这个最好不要固定
         self.linear_0 = nn.Conv1d(c, self.k, 1, bias=False)
 
         self.linear_1 = nn.Conv1d(self.k, c, 1, bias=False)
@@ -58,44 +58,3 @@ class External_attention(nn.Module):
         # x = F.relu(x)
         return x
 
-
-class EANet(nn.Module):
-    def __init__(self, n_classes, n_layers):
-        super().__init__()
-        backbone = resnet(n_layers, settings.STRIDE)
-        self.extractor = nn.Sequential(
-            backbone.conv1,
-            backbone.bn1,
-            backbone.relu,
-            backbone.maxpool,
-            backbone.layer1,
-            backbone.layer2,
-            backbone.layer3,
-            backbone.layer4)
-
-        self.fc0 = ConvBNReLU(2048, 512, 3, 1, 1, 1)
-        self.linu = External_attention(512)
-        self.fc1 = nn.Sequential(
-            ConvBNReLU(512, 256, 3, 1, 1, 1),
-            nn.Dropout2d(p=0.1))
-        self.fc2 = nn.Conv2d(256, n_classes, 1)
-
-        self.crit = CrossEntropyLoss2d(ignore_index=settings.IGNORE_LABEL,
-                                       reduction='none')
-
-    def forward(self, img, lbl=None, size=None):
-        x = self.extractor(img)
-        x = self.fc0(x)
-        x = self.linu(x)
-        x = self.fc1(x)
-        x = self.fc2(x)
-
-        if size is None:
-            size = img.size()[-2:]
-        pred = F.interpolate(x, size=size, mode='bilinear', align_corners=True)
-
-        if self.training and lbl is not None:
-            loss = self.crit(pred, lbl)
-            return loss
-        else:
-            return pred

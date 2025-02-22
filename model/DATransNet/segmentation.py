@@ -6,6 +6,8 @@ from .Gradient_attention.contrast_and_atrous import AttnContrastLayer
 from .CDCNs.Gradient_model import ExpansionContrastModule
 from .AttentionModule import *
 from .AttentionModule import _NonLocalBlockND
+from .CDCNs.Global_view import External_attention
+from .UIUNet_module.modules import *
 def get_activation(activation_type):
     activation_type = activation_type.lower()
     if hasattr(nn, activation_type):
@@ -15,12 +17,10 @@ def get_activation(activation_type):
 class GFEM(nn.Module):
     def __init__(self,channels):
         super().__init__()
-        self.down = nn.MaxPool2d((2,2))
-        self.up = nn.Upsample(scale_factor=2,mode='bilinear')
+        self.down = nn.MaxPool2d(kernel_size=4)
+        self.up = nn.Upsample(scale_factor=4,mode='bilinear')
         self.ca = ChannelAttention(in_planes=channels)
         self.sp = _NonLocalBlockND(in_channels=channels,inter_channels=channels//8)
-        self.sattn = nn.Sequential(nn.Conv2d(channels,1,kernel_size=1),
-                                   nn.Sigmoid())
         self.tra_conv_1 = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=1)
         self.tra_conv_2 = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=3,stride=1,padding=1)
         self.out_conv = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=3,stride=1,padding=1)
@@ -28,7 +28,7 @@ class GFEM(nn.Module):
         spat = self.sp(inps)
         down = self.down(inps)
         down = self.ca(spat)*down
-        down = self.up(down)*self.sattn(inps)
+        down = self.up(down)
         spat = self.tra_conv_1(spat)
         down = self.tra_conv_2(down)
         out = spat + down
@@ -65,7 +65,7 @@ class UpBlock_attention(nn.Module):
                                    nn.Sigmoid())
     def forward(self,d,c,xin):
         d = self.up(d)
-        d = self.sattn(xin)*d
+        # d = self.sattn(xin)*d
         x = torch.cat([c, d], dim=1)
         x = self.nConvs(x)
         return x
@@ -98,6 +98,12 @@ class Res_block(nn.Module):
         out += residual
         out = self.relu(out)
         return out
+    
+def _upsample_like(src,tar):
+
+    src = F.upsample(src, size=tar.shape[2:], mode='bilinear')
+
+    return src
 
 class DATransNet(nn.Module):
     def __init__(self,  n_channels=1, n_classes=1, img_size=256, vis=False, mode='train', deepsuper=True):
@@ -109,27 +115,31 @@ class DATransNet(nn.Module):
         self.n_classes = n_classes
         in_channels = 16  # basic channel 64
         block = Res_block
-        self.pool = nn.MaxPool2d(2, 2)
-        self.inc = self._make_layer(block, n_channels, in_channels)
-        self.encoder1 = self._make_layer(block, in_channels, in_channels * 2, 1)  
-        self.encoder2 = self._make_layer(block, in_channels * 2, in_channels * 4, 1) 
-        self.encoder3 = self._make_layer(block, in_channels * 4, in_channels * 8, 1)  
-        self.encoder4 = self._make_layer(block, in_channels * 8,  in_channels * 8, 1)  
-        self.encoder5 = self._make_layer(block, in_channels*8 , in_channels *8  ,1)
+        self.pool = nn.MaxPool2d(2, 2,ceil_mode=True)
+        self.inc = RSU7(n_channels,in_channels//2,in_channels)
+        self.encoder1 = RSU6(in_channels,in_channels//2,in_channels*2)
+        self.encoder2 = RSU5(in_channels*2,in_channels*1,in_channels*4)
+        self.encoder3 = RSU4(in_channels*4,in_channels*2,in_channels*8)
+        self.encoder4 = RSU4F(in_channels*8,in_channels*4,in_channels*8)
+        self.encoder5 = RSU4F(in_channels*8,in_channels*4,in_channels*8)
         # self.encoder6 = self._make_layer(block, in_channels*4 , in_channels *4  ,1)
         self.contras1 = ExpansionContrastModule(in_channels=in_channels*1,out_channels=in_channels*1,width=img_size//1,height=img_size//1,shifts=[1,3])
         self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,width=img_size//2,height=img_size//2,shifts=[1,3])
         self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,width=img_size//4,height=img_size//4,shifts=[1,3])
-        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,width=img_size//8,height=img_size//8,shifts=[1,3])
+        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,width=img_size//4,height=img_size//4,shifts=[1,3])
         self.GFEM = GFEM(channels=in_channels*8)
-        self.se_block = ChannelAttention(in_planes=in_channels*8, ratio=8)
-        self.sp_block = SpatialAttention(channel=in_channels*8,kernel_size=7)
-        # self.decoder6 = nn.Sequential(nn.ConvTranspose2d(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,stride=2),CBN(in_channels*4,in_channels*4,kernel_size=1))
-        self.decoder5 = UpBlock_attention(in_channels * 16, in_channels * 8, nb_Conv=2)
-        self.decoder4 = UpBlock_attention(in_channels * 16, in_channels * 4, nb_Conv=2)
-        self.decoder3 = UpBlock_attention(in_channels * 8, in_channels * 2, nb_Conv=2)
-        self.decoder2 = UpBlock_attention(in_channels * 4, in_channels, nb_Conv=2)
-        self.decoder1 = UpBlock_attention(in_channels * 2, in_channels, nb_Conv=2)
+
+        self.fuse4 = self._fuse_layer(in_channels*8, in_channels*8, in_channels*8, fuse_mode='AsymBi')
+        self.fuse3 = self._fuse_layer(in_channels*4, in_channels*4, in_channels*4, fuse_mode='AsymBi')
+        self.fuse2 = self._fuse_layer(in_channels*2, in_channels*2, in_channels*2, fuse_mode='AsymBi')
+        # self.fuse2 = self._fuse_layer(in_channels, in_channels, in_channels, fuse_mode='AsymBi')
+
+        # self.stage5d = RSU4F(1024,256,512)
+        self.stage4d = RSU4(in_channels*16,in_channels*4,in_channels*4)
+        self.stage3d = RSU5(in_channels*8,in_channels*2,in_channels*2)
+        self.stage2d = RSU6(in_channels*4,in_channels*1,in_channels)
+        self.stage1d = RSU7(in_channels*2,in_channels//2,in_channels)
+
         self.outc = nn.Conv2d(in_channels, n_classes, kernel_size=(1, 1), stride=(1, 1))
     def _make_layer(self, block, input_channels, output_channels, num_blocks=1):
         layers = []
@@ -137,7 +147,18 @@ class DATransNet(nn.Module):
         for _ in range(num_blocks - 1):
             layers.append(block(output_channels, output_channels))
         return nn.Sequential(*layers)
-
+    def _fuse_layer(self, in_high_channels, in_low_channels, out_channels,fuse_mode='AsymBi'):#fuse_mode='AsymBi'
+        # assert fuse_mode in ['BiLocal', 'AsymBi', 'BiGlobal']
+        # if fuse_mode == 'BiLocal':
+        #     fuse_layer = BiLocalChaFuseReduce(in_high_channels, in_low_channels, out_channels)
+        # el
+        if fuse_mode == 'AsymBi':
+            fuse_layer = AsymBiChaFuseReduce(in_high_channels, in_low_channels, out_channels)
+        # elif fuse_mode == 'BiGlobal':
+        #     fuse_layer = BiGlobalChaFuseReduce(in_high_channels, in_low_channels, out_channels)
+        else:
+            NameError
+        return fuse_layer
     def forward(self, x):
         #encoder
         x1 = self.inc(x) 
@@ -152,8 +173,24 @@ class DATransNet(nn.Module):
         c4 = self.contras4(x4)
         d5 = self.GFEM(d5)
         # decoder
-        d4 = self.decoder4(d5, c4, x4)
-        d3 = self.decoder3(d4, c3, x3)
-        d2 = self.decoder2(d3, c2, x2)
-        out = self.outc(self.decoder1(d2, c1, x1))
+        hx5dup = _upsample_like(d5,c4)
+
+        #-------------------- decoder --------------------
+
+        fusec41,fusec42 = self.fuse4(hx5dup, c4)
+        hx4d = self.stage4d(torch.cat((fusec41,fusec42),1))
+        hx4dup = _upsample_like(hx4d,c3)
+
+
+        fusec31,fusec32 = self.fuse3(hx4dup, c3)
+        hx3d = self.stage3d(torch.cat((fusec31,fusec32),1))
+        hx3dup = _upsample_like(hx3d,c2)
+
+        fusec21, fusec22 = self.fuse2(hx3dup, c2)
+        hx2d = self.stage2d(torch.cat((fusec21, fusec22), 1))
+        hx2dup = _upsample_like(hx2d,c1)
+
+
+        out = self.stage1d(torch.cat((hx2dup,c1),1))
+        out = self.outc(out)
         return out.sigmoid()

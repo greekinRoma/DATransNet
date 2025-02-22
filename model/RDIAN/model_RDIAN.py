@@ -45,7 +45,7 @@ class RDIAN(nn.Module):
     
         super(RDIAN, self).__init__()        
         accumulate_params = "none"
-        self.conv1 = conv_batch(1, 16)
+        self.conv1 = conv_batch(3, 16)
         self.conv2 = conv_batch(16, 32, stride=2)       
         self.residual_block0 = self.make_layer(NewBlock, in_channels=32, num_blocks=1, kernel_size=1,padding=0,stride=1)
         self.residual_block1 = self.make_layer(NewBlock, in_channels=32, num_blocks=2, kernel_size=3,padding=1,stride=1)

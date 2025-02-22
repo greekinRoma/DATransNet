@@ -88,13 +88,17 @@ class ExpansionContrastModule(nn.Module):
         surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,-1,w*h)
         surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,-1,w*h)
         surrounds_values = torch.stack(surrounds_values,dim=2).view(b,self.num_heads,-1,w*h)
+        surrounds_keys = torch.nn.functional.normalize(surrounds_keys,dim=-1)
+        surrounds_querys = torch.nn.functional.normalize(surrounds_querys,dim=-1)
+        # surrounds_values = torch.nn.functional.normalize(surrounds_values,dim=-1)
         return surrounds_keys,surrounds_querys,surrounds_values
     def forward(self,cen):
         b,_,w,h= cen.shape
         deltas_keys,deltas_querys,deltas_values = self.Extract_layer(cen,b,w,h)
-        deltas_keys = torch.nn.functional.normalize(deltas_keys,dim=-1).transpose(-2,-1)
-        deltas_querys = torch.nn.functional.normalize(deltas_querys,dim=-1)
+        deltas_keys = deltas_keys.transpose(-2,-1)
+        # deltas_querys = torch.nn.functional.normalize(deltas_querys,dim=-1)
         weight_score = self.softmax_layer(self.psi(torch.matmul(deltas_querys,deltas_keys)/math.sqrt(self.area)))
+        # weight_score = torch.matmul(deltas_querys,deltas_keys)
         out = torch.matmul(weight_score,deltas_values)
         out = out.view(b,self.in_channels,w,h)
         out = self.out_conv(out)

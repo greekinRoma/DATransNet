@@ -31,7 +31,7 @@ class Res_block(nn.Module):
 
 
 class res_UNet(nn.Module):
-    def __init__(self, num_classes=1, input_channels=1, num_blocks=[2,2,2,2], nb_filter=[8,16,32,64,128]):
+    def __init__(self, num_classes=1, input_channels=3, num_blocks=[2,2,2,2], nb_filter=[8,16,32,64,128]):
         super(res_UNet, self).__init__()
         self.pool = nn.MaxPool2d(2, 2)
         block = Res_block

@@ -23,8 +23,8 @@ class Down(nn.Module):
         # stemWidth = int(channels[0])
         stemWidth = int(8)
         self.stem = nn.Sequential(
-            normLayer(1, affine=False),
-            nn.Conv2d(1, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
+            normLayer(3, affine=False),
+            nn.Conv2d(3, stemWidth*2, kernel_size=3, stride=1, padding=1, bias=False),
             normLayer(stemWidth*2),
             activate()
         )

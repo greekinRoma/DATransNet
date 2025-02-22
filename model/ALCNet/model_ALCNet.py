@@ -256,8 +256,8 @@ class MPCMResNetFPN(nn.Module):
         # bz,3,256,256 -> bz,16,256,256
         stem_width = channels[0]
         self.stem = nn.Sequential(
-            nn.BatchNorm2d(1),
-            nn.Conv2d(1, stem_width * 2, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(3),
+            nn.Conv2d(3, stem_width * 2, 3, 1, 1, bias=False),
             nn.BatchNorm2d(stem_width * 2),
             nn.ReLU(True),
         )

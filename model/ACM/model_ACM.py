@@ -8,7 +8,7 @@ import torch.nn.functional as F
 # from model.utils import init_weights, count_param
 
 class ASKCResUNet(nn.Module):
-    def __init__(self, in_channels=1, layers=[3,3,3], channels=[8,16,32,64], fuse_mode='AsymBi', tiny=False, classes=1,
+    def __init__(self, in_channels=3, layers=[3,3,3], channels=[8,16,32,64], fuse_mode='AsymBi', tiny=False, classes=1,
                  norm_layer=BatchNorm2d,groups=1, norm_kwargs=None, **kwargs):
         super(ASKCResUNet, self).__init__()
         self.layer_num = len(layers)

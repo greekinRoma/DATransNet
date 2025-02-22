@@ -65,8 +65,6 @@ class AGPCNet(nn.Module):
     def forward(self, x):
         _, _, hei, wid = x.shape
 
-        x = conv_1to3(x)
-
         c1, c2, c3 = self.backbone(x)
 
         out = self.context(c3)

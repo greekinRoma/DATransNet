@@ -25,14 +25,6 @@ class Net(nn.Module):
             self.model = ALCNet()
         elif model_name == 'AGPCNet':
             self.model = AGPCNet()
-        # elif model_name == 'ISNet':
-        #     if mode == 'train':
-        #         self.model = ISNet(mode='train')
-        #     else:
-        #         self.model = ISNet(mode='test')
-        #     self.cal_loss = ISNetLoss()
-        # elif model_name == 'RISTDnet':
-        #     self.model = RISTDnet()
         elif model_name == 'UIUNet':
             if mode == 'train':
                 self.model = UIUNet(mode='train')
@@ -52,6 +44,10 @@ class Net(nn.Module):
             self.model = GTransformerv10()
         elif model_name =='GTransformerv11':
             self.model = GTransformerv11()
+        elif model_name == 'GTransformerv12':
+            self.model = GTransformerv12()
+        elif model_name == 'GTransformerv14':
+            self.model = GTransformerv14()
         elif model_name == 'res_UNet':
             self.model = res_UNet()
     def forward(self, img):

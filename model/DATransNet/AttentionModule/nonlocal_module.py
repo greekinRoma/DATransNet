@@ -40,7 +40,7 @@ class _NonLocalBlockND(nn.Module):
             bn = nn.BatchNorm3d
         elif dimension == 2:
             conv_nd = nn.Conv2d
-            max_pool_layer = nn.MaxPool2d(kernel_size=(2, 2))
+            max_pool_layer = nn.MaxPool2d(kernel_size=(2,2))
             bn = nn.BatchNorm2d
         else:
             conv_nd = nn.Conv1d
