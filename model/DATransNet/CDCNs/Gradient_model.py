@@ -6,81 +6,132 @@ from torch import nn
 import math
 from .contrast_and_atrous import AttnContrastLayer
 class ExpansionContrastModule(nn.Module):
-    def __init__(self,in_channels,out_channels,width,height,shifts):
+    def __init__(self,in_channels,out_channels,tra_channels,width,height,shifts):
         super().__init__()
         #The hyper parameters settting
         self.convs_list=nn.ModuleList()
-        delta1=np.array([[[-1, 0, 0], [0, 1, 0], [0, 0, 0]],
-                         [[0, -1, 0], [0, 1, 0], [0, 0, 0]],
-                         [[0, 0, -1], [0, 1, 0], [0, 0, 0]],
-                         [[0, 0, 0], [0, 1, -1], [0, 0, 0]]])
-        delta1=delta1.reshape(4,1,3,3)
-        delta2=delta1[:,:,::-1,::-1].copy()
-        delta=np.concatenate([delta1,delta2],axis=0)
-        w1,w2,w3,w4,w5,w6,w7,w8=np.array_split(delta,8)
+        # delta1=np.array([[[-1, 0, 0], [0, 1, 0], [0, 0, 0]],
+        #                  [[0, -1, 0], [0, 1, 0], [0, 0, 0]],
+        #                  [[0, 0, -1], [0, 1, 0], [0, 0, 0]],
+        #                  [[0, 0, 0], [0, 1, -1], [0, 0, 0]]])
+        # delta1=delta1.reshape(4,1,3,3)
+        # delta2=delta1[:,:,::-1,::-1].copy()
+        # delta=np.concatenate([delta1,delta2],axis=0)
+        # w1,w2,w3,w4,w5,w6,w7,w8=np.array_split(delta,8)
         self.in_channels = max(in_channels,1)
+        self.out_channels = out_channels
+        self.tra_channels = tra_channels
         self.shifts =shifts
         self.num_heads = len(shifts)
-        self.scale=torch.nn.Parameter(torch.zeros(len(self.shifts)))
-    
+        self.sum_weight_layers = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(in_channels=in_channels,out_channels=in_channels*9,kernel_size=1)
+        )
+        # for i in range(len(shifts)):
+        #     self.sum_weights.append(torch.nn.Parameter(torch.ones((1,9,self.in_channels,1,1), requires_grad=True)).cuda()) 
+        # self.down_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.tra_channels,kernel_size=1,stride=1,bias=False),
+        #                               nn.BatchNorm2d(self.tra_channels),
+        #                               nn.ReLU())
         #After Extraction, we analyze the outcome of the extraction.
         self.num_layer= 8
         self.width = width
         self.height = height
         self.area = width* height
         self.psi = nn.InstanceNorm2d(len(self.shifts))
-        # self.position_embeddings = nn.Parameter(torch.zeros(1,1,self.area))
-        # self.layernorm1 = nn.LayerNorm(self.area)
-        # self.layernorm2 = nn.LayerNorm(self.area)
-        # self.layernorm3 = nn.LayerNorm(self.area)
         self.softmax_layer = nn.Softmax(dim=-1)
         self.query_convs=nn.ModuleList()
         self.key_convs=nn.ModuleList()
         self.value_convs=nn.ModuleList()
-        self.down_convs = nn.ModuleList()
-        # self.hidden_channels = self.in_channels
-            #The Process the of extraction of outcome
-        self.kernel1 = torch.Tensor(w1).cuda()
-        self.kernel2 = torch.Tensor(w2).cuda()
-        self.kernel3 = torch.Tensor(w3).cuda()
-        self.kernel4 = torch.Tensor(w4).cuda()
-        self.kernel5 = torch.Tensor(w5).cuda()
-        self.kernel6 = torch.Tensor(w6).cuda()
-        self.kernel7 = torch.Tensor(w7).cuda()
-        self.kernel8 = torch.Tensor(w8).cuda()
-        self.kernel1 = self.kernel1.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel2 = self.kernel2.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel3 = self.kernel3.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel4 = self.kernel4.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel5 = self.kernel5.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel6 = self.kernel6.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel7 = self.kernel7.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel8 = self.kernel8.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.hidden_channels = self.in_channels//len(self.shifts)
+        self.sum_weight_layers = nn.ModuleList()
+        # self.kernel1 = torch.Tensor(w1).cuda()
+        # self.kernel2 = torch.Tensor(w2).cuda()
+        # self.kernel3 = torch.Tensor(w3).cuda()
+        # self.kernel4 = torch.Tensor(w4).cuda()
+        # self.kernel5 = torch.Tensor(w5).cuda()
+        # self.kernel6 = torch.Tensor(w6).cuda()
+        # self.kernel7 = torch.Tensor(w7).cuda()
+        # self.kernel8 = torch.Tensor(w8).cuda()
+        # self.kernel1 = self.kernel1.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel2 = self.kernel2.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel3 = self.kernel3.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel4 = self.kernel4.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel5 = self.kernel5.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel6 = self.kernel6.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel7 = self.kernel7.repeat(self.in_channels, 1, 1, 1).contiguous()
+        # self.kernel8 = self.kernel8.repeat(self.in_channels, 1, 1, 1).contiguous()
+        self.hidden_channels = self.tra_channels//len(self.shifts)
         # self.down_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,padding='same',bias=False)
         for i in range(len(self.shifts)):
-            # kernel = max(self.shifts[i]-2,1)
-            # self.down_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=kernel,stride=1,padding='same',bias=False))
             self.query_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False))
             self.key_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False))
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False)) 
-        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False),
-                                      nn.BatchNorm2d(self.in_channels),
+            self.sum_weight_layers.append(nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Conv2d(in_channels=in_channels,out_channels=in_channels,kernel_size=1),
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=in_channels,out_channels=in_channels*9,kernel_size=1),
+        )) 
+        self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.tra_channels,out_channels=self.out_channels,kernel_size=1,stride=1,bias=False),
+                                      nn.BatchNorm2d(self.out_channels),
                                       nn.ReLU())
+    def feature_padding(self, input_feature, dilation_ratio):
+
+        B, C, H, W = input_feature.size()
+        in_feat = input_feature.clone()
+
+        # top pad
+        left_top_pad = nn.ReflectionPad2d((dilation_ratio, 0, dilation_ratio, 0))
+        x0 = left_top_pad(in_feat)
+        x0 = x0[:, :, 0:H, 0:W]
+
+        center_top_pad = nn.ReflectionPad2d((0, 0, dilation_ratio, 0))
+        x1 = center_top_pad(in_feat)
+        x1 = x1[:, :, 0:H, :]
+
+        right_top_pad = nn.ReflectionPad2d((0, dilation_ratio, dilation_ratio, 0))
+        x2 = right_top_pad(in_feat)
+        x2 = x2[:, :, 0:H, dilation_ratio:]
+
+        # center pad
+        left_center_pad = nn.ReflectionPad2d((dilation_ratio, 0, 0, 0))
+        x3 = left_center_pad(in_feat)
+        x3 = x3[:, :, :, 0:W]
+
+        right_center_pad = nn.ReflectionPad2d((0, dilation_ratio, 0, 0))
+        x4 = right_center_pad(in_feat)
+        x4 = x4[:, :, :, dilation_ratio:]
+
+        # bottom pad
+        left_bottom_pad = nn.ReflectionPad2d((dilation_ratio, 0, 0, dilation_ratio))
+        x5 = left_bottom_pad(in_feat)
+        x5 = x5[:, :, dilation_ratio:, 0:W]
+
+        center_bottom_pad = nn.ReflectionPad2d((0, 0, 0, dilation_ratio))
+        x6 = center_bottom_pad(in_feat)
+        x6 = x6[:, :, dilation_ratio:, :]
+
+        right_bottm_pad = nn.ReflectionPad2d((0, dilation_ratio, 0, dilation_ratio))
+        x7 = right_bottm_pad(in_feat)
+        x7 = x7[:, :, dilation_ratio:, dilation_ratio:]
+
+        return x0, x1, x2, x3, x4, x5, x6, x7
     def Extract_layer(self,cen,b,w,h):
         surrounds_keys = []
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
-            # cen = self.down_convs[i](center)
-            surround1 = torch.nn.functional.conv2d(weight=self.kernel1, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround2 = torch.nn.functional.conv2d(weight=self.kernel2, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround3 = torch.nn.functional.conv2d(weight=self.kernel3, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround4 = torch.nn.functional.conv2d(weight=self.kernel4, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround5 = torch.nn.functional.conv2d(weight=self.kernel5, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround6 = torch.nn.functional.conv2d(weight=self.kernel6, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround7 = torch.nn.functional.conv2d(weight=self.kernel7, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround8 = torch.nn.functional.conv2d(weight=self.kernel8, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            x0, x1, x2, x3, x4, x5, x6, x7 = self.feature_padding(cen,self.shifts[i])
+            sum_weight = self.sum_weight_layers[i](cen).view(b,9,self.in_channels,1,1)
+            sum_x = sum_weight[:,0]*x0+sum_weight[:,1]*x1+sum_weight[:,2]*x2+sum_weight[:,3]*x3+sum_weight[:,4]*x4+sum_weight[:,5]*x5+sum_weight[:,6]*x6+sum_weight[:,7]*x7
+            surround1 = x0 - sum_x
+            surround2 = x1 - sum_x
+            surround3 = x2 - sum_x
+            surround4 = x3 - sum_x
+            surround5 = x4 - sum_x
+            surround6 = x5 - sum_x
+            surround7 = x6 - sum_x
+            surround8 = x7 - sum_x
             surrounds = torch.cat([surround1,surround2,surround3,surround4,surround5,surround6,surround7,surround8],1)
             surrounds_keys.append(self.key_convs[i](surrounds))
             surrounds_querys.append(self.query_convs[i](cen))
@@ -96,6 +147,6 @@ class ExpansionContrastModule(nn.Module):
         deltas_querys = torch.nn.functional.normalize(deltas_querys,dim=-1)
         weight_score = self.softmax_layer(self.psi(torch.matmul(deltas_querys,deltas_keys)/math.sqrt(self.area)))
         out = torch.matmul(weight_score,deltas_values)
-        out = out.view(b,self.in_channels,w,h)
+        out = out.view(b,self.tra_channels,w,h)
         out = self.out_conv(out)
         return out

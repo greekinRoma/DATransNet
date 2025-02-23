@@ -27,10 +27,10 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 parser = argparse.ArgumentParser(description="PyTorch ISTD")
 
-parser.add_argument("--model_names", default=['res_UNet',], type=str, nargs='+',
+parser.add_argument("--model_names", default=['DATransNet',], type=str, nargs='+',
                     help="model_name: 'ALCNet', 'ACM', "
                          "'DNANet', 'AGPCNet'")
-parser.add_argument("--dataset_names", default=['NUDT-SIRST'], type=str, nargs='+',
+parser.add_argument("--dataset_names", default=['IRSTD-1K'], type=str, nargs='+',
                     help="dataset_name: 'NUDT-SIRST', 'IRSTD-1K', 'SIRST-aug','SIRST','NUAA-SIRST'")
 
 parser.add_argument("--dataset_dir", default='./data', type=str, help="train_dataset_dir")
@@ -56,9 +56,11 @@ def train():
     if opt.dataset_name == "NUDT-SIRST":
         dataset_dir = r'./data/NUDT-SIRST/'
         train_set = NUDTSIRSTSetLoader(base_dir=dataset_dir, mode='trainval')
+        size = 256
     elif opt.dataset_name == "IRSTD-1K":
         dataset_dir = r'./data/IRSTD-1K/'
         train_set = IRSTD1KSetLoader(base_dir=dataset_dir, mode='trainval')
+        size = 512
     elif opt.dataset_name == "SIRST-aug":
         dataset_dir = r'./data/sirst_aug/'
         train_set = SIRSTAugSetLoader(base_dir=dataset_dir, mode='trainval')
@@ -73,7 +75,7 @@ def train():
 
     train_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize, shuffle=True)
 
-    net = Net(model_name=opt.model_name, mode='train').cuda()
+    net = Net(model_name=opt.model_name, mode='train',size=size).cuda()
     # print(net)
     net.train()
 
@@ -151,9 +153,11 @@ def test_with_save(save_pth, idx_epoch, total_loss_list, net_state_dict):
     if opt.dataset_name == "NUDT-SIRST":
         dataset_dir = r'./data/NUDT-SIRST/'
         test_set = NUDTSIRSTSetLoader(base_dir=dataset_dir, mode='test')
+        size =256
     elif opt.dataset_name == "IRSTD-1K":
         dataset_dir = r'./data/IRSTD-1K/'
         test_set = IRSTD1KSetLoader(base_dir=dataset_dir, mode='test')
+        size = 512
     elif opt.dataset_name == "SIRST-aug":
         dataset_dir = r'./data/sirst_aug/'
         test_set = SIRSTAugSetLoader(base_dir=dataset_dir, mode='test')
@@ -167,7 +171,7 @@ def test_with_save(save_pth, idx_epoch, total_loss_list, net_state_dict):
         raise NotImplementedError
     test_loader = DataLoader(dataset=test_set, num_workers=1, batch_size=1, shuffle=False)
 
-    net = Net(model_name=opt.model_name, mode='test').cuda()
+    net = Net(model_name=opt.model_name, mode='test',size=size).cuda()
     # ckpt = torch.load(save_pth)
     net.load_state_dict(net_state_dict)
     net.eval()
