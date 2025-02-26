@@ -43,6 +43,7 @@ class ExpansionContrastModule(nn.Module):
         self.key_convs=nn.ModuleList()
         self.value_convs=nn.ModuleList()
         self.sum_weight_layers = nn.ModuleList()
+        self.sur_weight_layers = nn.ModuleList()
         # self.kernel1 = torch.Tensor(w1).cuda()
         # self.kernel2 = torch.Tensor(w2).cuda()
         # self.kernel3 = torch.Tensor(w3).cuda()
@@ -61,17 +62,22 @@ class ExpansionContrastModule(nn.Module):
         # self.kernel8 = self.kernel8.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.hidden_channels = self.tra_channels//len(self.shifts)
         # self.down_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,padding='same',bias=False)
+        self.sum_weight = nn.Parameter(torch.zeros((1,2,2,1,1,1),requires_grad=True).cuda())
         for i in range(len(self.shifts)):
             self.query_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False))
             self.key_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False))
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False)) 
             self.sum_weight_layers.append(nn.Sequential(
-            nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(in_channels=in_channels,out_channels=in_channels,kernel_size=1),
-            nn.BatchNorm2d(in_channels),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=in_channels,out_channels=in_channels*9,kernel_size=1),
-        )) 
+            nn.Conv2d(in_channels=in_channels,out_channels=1,kernel_size=1),
+            nn.Softmax(dim=1)
+            )) 
+            self.sur_weight_layers.append(nn.Sequential(
+                nn.AdaptiveAvgPool2d(1),
+                nn.Conv2d(in_channels=in_channels,out_channels=in_channels,kernel_size=1),
+                nn.ReLU(),
+                nn.Conv2d(in_channels=in_channels,out_channels=8,kernel_size=1,stride=1),
+                nn.Sigmoid()
+            ))
         self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.tra_channels,out_channels=self.out_channels,kernel_size=1,stride=1,bias=False),
                                       nn.BatchNorm2d(self.out_channels),
                                       nn.ReLU())
@@ -121,9 +127,12 @@ class ExpansionContrastModule(nn.Module):
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
+            # sum_weight = torch.nn.functional.normalize(self.sum_weight[:,i],dim=1)
             x0, x1, x2, x3, x4, x5, x6, x7 = self.feature_padding(cen,self.shifts[i])
-            sum_weight = self.sum_weight_layers[i](cen).view(b,9,self.in_channels,1,1)
-            sum_x = sum_weight[:,0]*x0+sum_weight[:,1]*x1+sum_weight[:,2]*x2+sum_weight[:,3]*x3+sum_weight[:,4]*x4+sum_weight[:,5]*x5+sum_weight[:,6]*x6+sum_weight[:,7]*x7
+            sur_weight = torch.nn.functional.softmax(self.sur_weight_layers[i](cen),dim=1).view(b,8,1,1,1)
+            # print(sur_weight[:,8].view(b,-1))
+            sum_x = sur_weight[:,0]*x0+sur_weight[:,1]*x1+sur_weight[:,2]*x2+sur_weight[:,3]*x3+sur_weight[:,4]*x4+sur_weight[:,5]*x5+sur_weight[:,6]*x6+sur_weight[:,7]*x7
+            sum_x = sum_x + cen*(1-torch.sum(sur_weight,dim=1))
             surround1 = x0 - sum_x
             surround2 = x1 - sum_x
             surround3 = x2 - sum_x
@@ -145,7 +154,8 @@ class ExpansionContrastModule(nn.Module):
         deltas_keys,deltas_querys,deltas_values = self.Extract_layer(cen,b,w,h)
         deltas_keys = torch.nn.functional.normalize(deltas_keys,dim=-1).transpose(-2,-1)
         deltas_querys = torch.nn.functional.normalize(deltas_querys,dim=-1)
-        weight_score = self.softmax_layer(self.psi(torch.matmul(deltas_querys,deltas_keys)/math.sqrt(self.area)))
+        weight_score = torch.matmul(deltas_querys,deltas_keys)
+        weight_score = self.softmax_layer(self.psi(weight_score/math.sqrt(self.area)))
         out = torch.matmul(weight_score,deltas_values)
         out = out.view(b,self.tra_channels,w,h)
         out = self.out_conv(out)
