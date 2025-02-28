@@ -21,25 +21,16 @@ class ExpansionContrastModule(nn.Module):
         self.in_channels = max(in_channels,1)
         self.shifts =shifts
         self.num_heads = len(shifts)
-        self.scale=torch.nn.Parameter(torch.zeros(len(self.shifts)))
-    
-        #After Extraction, we analyze the outcome of the extraction.
         self.num_layer= 8
         self.width = width
         self.height = height
         self.area = width* height
         self.psi = nn.InstanceNorm2d(len(self.shifts))
-        # self.position_embeddings = nn.Parameter(torch.zeros(1,1,self.area))
-        # self.layernorm1 = nn.LayerNorm(self.area)
-        # self.layernorm2 = nn.LayerNorm(self.area)
-        # self.layernorm3 = nn.LayerNorm(self.area)
         self.softmax_layer = nn.Softmax(dim=-1)
         self.query_convs=nn.ModuleList()
         self.key_convs=nn.ModuleList()
         self.value_convs=nn.ModuleList()
         self.down_convs = nn.ModuleList()
-        # self.hidden_channels = self.in_channels
-            #The Process the of extraction of outcome
         self.kernel1 = torch.Tensor(w1).cuda()
         self.kernel2 = torch.Tensor(w2).cuda()
         self.kernel3 = torch.Tensor(w3).cuda()
@@ -56,11 +47,9 @@ class ExpansionContrastModule(nn.Module):
         self.kernel6 = self.kernel6.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel7 = self.kernel7.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel8 = self.kernel8.repeat(self.in_channels, 1, 1, 1).contiguous()
+        self.kernel0 = self.kernel1 + self.kernel2 + self.kernel3 + self.kernel4 + self.kernel5 + self.kernel6 + self.kernel7 + self.kernel8
         self.hidden_channels = self.in_channels//len(self.shifts)
-        # self.down_conv = nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,padding='same',bias=False)
         for i in range(len(self.shifts)):
-            # kernel = max(self.shifts[i]-2,1)
-            # self.down_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=kernel,stride=1,padding='same',bias=False))
             self.query_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False))
             self.key_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False))
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False)) 
@@ -72,7 +61,6 @@ class ExpansionContrastModule(nn.Module):
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
-            # cen = self.down_convs[i](center)
             surround1 = torch.nn.functional.conv2d(weight=self.kernel1, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
             surround2 = torch.nn.functional.conv2d(weight=self.kernel2, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
             surround3 = torch.nn.functional.conv2d(weight=self.kernel3, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])

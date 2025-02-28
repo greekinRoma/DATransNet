@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 
 class Net(nn.Module):
-    def __init__(self, model_name, mode='test'):
+    def __init__(self, model_name, mode='test',size=256):
         super(Net, self).__init__()
 
         self.model_name = model_name
@@ -45,7 +45,7 @@ class Net(nn.Module):
         elif model_name == 'ISTDU_Net':
             self.model = ISTDU_Net()
         elif model_name == 'DATransNet':
-            self.model = DATransNet()
+            self.model = DATransNet(img_size=size)
         elif model_name == 'GTransformerv8':
             self.model = GTransformerv8()
         elif model_name =='GTransformerv10':
