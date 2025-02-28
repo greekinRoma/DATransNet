@@ -47,12 +47,16 @@ class ExpansionContrastModule(nn.Module):
         self.kernel6 = self.kernel6.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel7 = self.kernel7.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel8 = self.kernel8.repeat(self.in_channels, 1, 1, 1).contiguous()
-        self.kernel0 = self.kernel1 + self.kernel2 + self.kernel3 + self.kernel4 + self.kernel5 + self.kernel6 + self.kernel7 + self.kernel8
+        self.kernel0 = (self.kernel1 + self.kernel2 + self.kernel3 + self.kernel4 + self.kernel5 + self.kernel6 + self.kernel7 + self.kernel8)/8
         self.hidden_channels = self.in_channels//len(self.shifts)
+        self.sum_weights = nn.ParameterList()
+        self.pad_layers = nn.ModuleList()
         for i in range(len(self.shifts)):
             self.query_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False))
             self.key_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False))
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False)) 
+            self.sum_weights.append(nn.Parameter(torch.randn((in_channels,1,1,1,2))))
+            self.pad_layers.append(nn.ReflectionPad2d((self.shifts[i],self.shifts[i],self.shifts[i],self.shifts[i])))
         self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.in_channels,out_channels=self.in_channels,kernel_size=1,stride=1,bias=False),
                                       nn.BatchNorm2d(self.in_channels),
                                       nn.ReLU())
@@ -61,14 +65,15 @@ class ExpansionContrastModule(nn.Module):
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
-            surround1 = torch.nn.functional.conv2d(weight=self.kernel1, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround2 = torch.nn.functional.conv2d(weight=self.kernel2, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround3 = torch.nn.functional.conv2d(weight=self.kernel3, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround4 = torch.nn.functional.conv2d(weight=self.kernel4, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround5 = torch.nn.functional.conv2d(weight=self.kernel5, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround6 = torch.nn.functional.conv2d(weight=self.kernel6, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround7 = torch.nn.functional.conv2d(weight=self.kernel7, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
-            surround8 = torch.nn.functional.conv2d(weight=self.kernel8, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            sum_weight = torch.nn.functional.softmax(self.sum_weights[i],dim=-1)
+            surround1 = torch.nn.functional.conv2d(weight=self.kernel1*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround2 = torch.nn.functional.conv2d(weight=self.kernel2*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround3 = torch.nn.functional.conv2d(weight=self.kernel3*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround4 = torch.nn.functional.conv2d(weight=self.kernel4*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround5 = torch.nn.functional.conv2d(weight=self.kernel5*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround6 = torch.nn.functional.conv2d(weight=self.kernel6*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround7 = torch.nn.functional.conv2d(weight=self.kernel7*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
+            surround8 = torch.nn.functional.conv2d(weight=self.kernel8*sum_weight[...,0]+self.kernel0*sum_weight[...,1], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
             surrounds = torch.cat([surround1,surround2,surround3,surround4,surround5,surround6,surround7,surround8],1)
             surrounds_keys.append(self.key_convs[i](surrounds))
             surrounds_querys.append(self.query_convs[i](cen))
