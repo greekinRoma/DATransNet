@@ -97,6 +97,8 @@ class ExpansionContrastModule(nn.Module):
             sum_x = torch.stack([sum_x,cen],dim=2).view(b,-1,w,h)
             weight = torch.softmax(self.sum_weights[i],dim=1)
             sum_x = torch.nn.functional.conv2d(input=sum_x,weight=weight,groups=self.in_channels)
+            cen_x = torch.stack([cen,(x1+x2+x3+x4+x5+x6+x7+x0)/8],dim=2).view(b,-1,w,h)
+            cen_x = torch.nn.functional.conv2d(input=cen_x,weight=weight,groups=self.in_channels)
             # print(weight)
             # print(self.sum_layers[0].weight)
             surround1 = x0 - sum_x
@@ -109,7 +111,7 @@ class ExpansionContrastModule(nn.Module):
             surround8 = x7 - sum_x
             surrounds = torch.cat([surround1,surround2,surround3,surround4,surround5,surround6,surround7,surround8],1)
             surrounds_keys.append(self.key_convs[i](surrounds))
-            surrounds_querys.append(self.query_convs[i](sum_x))
+            surrounds_querys.append(self.query_convs[i](cen_x))
             surrounds_values.append(self.value_convs[i](surrounds))
         surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,-1,w*h)
         surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,-1,w*h)
