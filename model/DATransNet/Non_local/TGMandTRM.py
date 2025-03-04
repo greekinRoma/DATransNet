@@ -14,6 +14,8 @@ class TGMandTRM(nn.Module):
         self.conv1_3 = conv1_3
 
         self.lam = torch.nn.Parameter(torch.ones(self.rank, requires_grad=True)).cuda()
+        self.weights = nn.ParameterList()
+        self.weights.append(self.lam)
         self.out_conv = nn.Conv2d(in_channels=c*2,out_channels=c,kernel_size=1)
         self.pool = nn.AdaptiveAvgPool2d(self.ps[0])
 
@@ -28,7 +30,9 @@ class TGMandTRM(nn.Module):
         H = self.pool(x.permute(0, 3, 1, 2).contiguous())
         W = self.pool(x.permute(0, 2, 3, 1).contiguous())
         # self.lam = F.softmax(self.lam,-1)
-        lam = torch.chunk(self.lam, dim=0, chunks=self.rank)
+        lam = torch.chunk(self.weights[0], dim=0, chunks=self.rank)
+        print(self.weights[0])
+        raise
         list = []
         for i in range(0, self.rank):
             list.append(lam[i]*self.TukerReconstruction(b, self.h , self.ps[0], self.conv1_1[i](C), self.conv1_2[i](H), self.conv1_3[i](W)))

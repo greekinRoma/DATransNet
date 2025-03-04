@@ -1,0 +1,5 @@
+*********Feb 16 21:23:18 Epoch---1, total_loss---0.997971,,*********
+pixAcc 0.949214, mIoU: 0.071837
+Pd: 0.957672, Fa: 0.00508943, fscore: 0.133970
+Best mIoU: 0.071837,when Epoch=1, Best fscore: 0.133970,when Epoch=1
+Best Pd: 0.957672,when Epoch=1, Best Fa: 0.00508943,when Epoch=1

@@ -16,7 +16,7 @@ def get_activation(activation_type):
 class GFEM(nn.Module):
     def __init__(self,channels,size):
         super().__init__()
-        self.down = nn.MaxPool2d((2,2))
+        self.down = nn.MaxPool2d(kernel_size=3,stride=2,padding=1)
         self.up = nn.Upsample(scale_factor=2,mode='bilinear')
         self.ca = ChannelAttention(in_planes=channels)
         self.sp = TGMandTRM(h=size,c=channels)
