@@ -47,16 +47,16 @@ class ExpansionContrastModule(nn.Module):
         self.kernel_su = torch.ones((1,1,3,3)).cuda()/8
         self.kernel_ce = torch.zeros((1,1,3,3)).cuda()
         self.kernel_ce[:,:,1,1] = 1
-        self.kernel_su[:,:,1,1] = 0
-        self.kernel_tm = self.kernel_su - self.kernel_ce
-        self.kernel1_2 = self.kernel1 + self.kernel_tm
-        self.kernel2_2 = self.kernel2 + self.kernel_tm
-        self.kernel3_2 = self.kernel3 + self.kernel_tm
-        self.kernel4_2 = self.kernel4 + self.kernel_tm
-        self.kernel5_2 = self.kernel5 + self.kernel_tm
-        self.kernel6_2 = self.kernel6 + self.kernel_tm
-        self.kernel7_2 = self.kernel7 + self.kernel_tm
-        self.kernel8_2 = self.kernel8 + self.kernel_tm
+        self.kernel1_2 = (self.kernel1 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel2_2 = (self.kernel2 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel3_2 = (self.kernel3 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel4_2 = (self.kernel4 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel5_2 = (self.kernel5 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel6_2 = (self.kernel6 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel7_2 = (self.kernel7 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel8_2 = (self.kernel8 - self.kernel_ce)*9/8+self.kernel_su
+        self.kernel_su = self.kernel_su*7/8
+        self.kernel_su[:,:,1,1] = 1/8
         self.kernel1_2 = self.kernel1_2.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel2_2 = self.kernel2_2.repeat(self.in_channels, 1, 1, 1).contiguous()
         self.kernel3_2 = self.kernel3_2.repeat(self.in_channels, 1, 1, 1).contiguous()
@@ -90,7 +90,7 @@ class ExpansionContrastModule(nn.Module):
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
-            cen_x = torch.nn.functional.conv2d(weight=self.kernel_su*(1-self.sum_weights[i])+self.sum_weights[i]*self.kernel_ce, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i]) 
+            cen_x = torch.nn.functional.conv2d(weight=self.kernel_su*(1-self.sum_weights[i]) + self.sum_weights[i]*self.kernel_ce, stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i]) 
             surround1 = torch.nn.functional.conv2d(weight=self.kernel1_1*(1-self.sum_weights[i]) + self.kernel1_2*self.sum_weights[i], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
             surround2 = torch.nn.functional.conv2d(weight=self.kernel2_1*(1-self.sum_weights[i]) + self.kernel2_2*self.sum_weights[i], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
             surround3 = torch.nn.functional.conv2d(weight=self.kernel3_1*(1-self.sum_weights[i]) + self.kernel3_2*self.sum_weights[i], stride=1, padding="same", input=cen,groups=self.in_channels,dilation=self.shifts[i])
@@ -103,9 +103,9 @@ class ExpansionContrastModule(nn.Module):
             surrounds_keys.append(self.key_convs[i](surrounds))
             surrounds_querys.append(self.query_convs[i](cen_x))
             surrounds_values.append(self.value_convs[i](surrounds))
-        surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,-1,w*h)
-        surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,-1,w*h)
-        surrounds_values = torch.stack(surrounds_values,dim=2).view(b,self.num_heads,-1,w*h)
+        surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,-1)
+        surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,-1)
+        surrounds_values = torch.stack(surrounds_values,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,)
         return surrounds_keys,surrounds_querys,surrounds_values
     def forward(self,cen):
         b,_,w,h= cen.shape
