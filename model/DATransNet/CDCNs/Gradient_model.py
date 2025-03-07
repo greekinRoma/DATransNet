@@ -103,9 +103,9 @@ class ExpansionContrastModule(nn.Module):
             surrounds_keys.append(self.key_convs[i](surrounds))
             surrounds_querys.append(self.query_convs[i](cen_x))
             surrounds_values.append(self.value_convs[i](surrounds))
-        surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,-1)
-        surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,-1)
-        surrounds_values = torch.stack(surrounds_values,dim=2).view(b,self.num_heads,self.tra_channels*self.num_layer,)
+        surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,-1,w*h)
+        surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,-1,w*h)
+        surrounds_values = torch.stack(surrounds_values,dim=2).view(b,self.num_heads,-1,w*h)
         return surrounds_keys,surrounds_querys,surrounds_values
     def forward(self,cen):
         b,_,w,h= cen.shape
