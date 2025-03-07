@@ -120,7 +120,7 @@ class DATransNet(nn.Module):
         self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,tra_channels=in_channels*2,width=img_size//2,height=img_size//2,shifts=[1,3])
         self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,tra_channels=in_channels*2,width=img_size//4,height=img_size//4,shifts=[1,3])
         self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,tra_channels=in_channels*2,width=img_size//8,height=img_size//8,shifts=[1])
-        self.GFEM = TGMandTRM(h=img_size//16,c=in_channels*8,rank_num=32)
+        self.GFEM = TGMandTRM(h=img_size//16,c=in_channels*8,rank_num=64)
         # self.decoder6 = nn.Sequential(nn.ConvTranspose2d(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,stride=2),CBN(in_channels*4,in_channels*4,kernel_size=1))
         self.decoder5 = UpBlock_attention(in_channels * 16, in_channels * 8, nb_Conv=2)
         self.decoder4 = UpBlock_attention(in_channels * 16, in_channels * 4, nb_Conv=2)
