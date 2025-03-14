@@ -93,20 +93,29 @@ class ExpansionContrastModule(nn.Module):
         for i in range(len(self.shifts)):
             # print(cen.shape)
             x0, x1, x2, x3, x4, x5, x6, x7 = self.feature_padding(cen,self.shifts[i])
-            weight = self.sum_weights[i]
+            weight1 = self.sum_weights[i]
+            weight2 = 1 - weight1
+            sum_weight[:,0:1] = sum_weight[:,0:1] * weight2
+            sum_weight[:,1:2] = sum_weight[:,1:2] * weight2
+            sum_weight[:,2:3] = sum_weight[:,2:3] * weight2
+            sum_weight[:,3:4] = sum_weight[:,3:4] * weight2
+            sum_weight[:,4:5] = sum_weight[:,4:5] * weight2
+            sum_weight[:,5:6] = sum_weight[:,5:6] * weight2
+            sum_weight[:,6:7] = sum_weight[:,6:7] * weight2
+            sum_weight[:,7:8] = sum_weight[:,7:8] * weight2
             sum_weight = self.sur_weight_layers[i](cen)
             sum_x = x0*sum_weight[:,0:1]+x1*sum_weight[:,1:2]+x2*sum_weight[:,2:3]+x3*sum_weight[:,3:4]+x4*sum_weight[:,4:5]+x5*sum_weight[:,5:6]+x6*sum_weight[:,6:7]+x7*sum_weight[:,7:8]
             # cen_x = cen * weight
-            # sum_x = sum_x *(1-weight)+ cen_x
-            cen_x = (x0+x1+x2+x3+x4+x5+x6+x7)/8*(1-weight) + cen* weight
-            surround1 = x0 - sum_x
-            surround2 = x1 - sum_x
-            surround3 = x2 - sum_x
-            surround4 = x3 - sum_x
-            surround5 = x4 - sum_x
-            surround6 = x5 - sum_x
-            surround7 = x6 - sum_x
-            surround8 = x7 - sum_x
+            sum_x = sum_x  + cen * weight1
+            cen_x = (sum_x + cen * weight1)/8
+            surround1 = x0 - sum_x - sum_weight[:,0:1]*(x0 - cen)
+            surround2 = x1 - sum_x - sum_weight[:,1:2]*(x1 - cen)
+            surround3 = x2 - sum_x - sum_weight[:,2:3]*(x2 - cen)
+            surround4 = x3 - sum_x - sum_weight[:,3:4]*(x3 - cen)
+            surround5 = x4 - sum_x - sum_weight[:,4:5]*(x4 - cen)
+            surround6 = x5 - sum_x - sum_weight[:,5:6]*(x5 - cen)
+            surround7 = x6 - sum_x - sum_weight[:,6:7]*(x6 - cen)
+            surround8 = x7 - sum_x - sum_weight[:,7:8]*(x7 - cen)
             surrounds = torch.cat([surround1,surround2,surround3,surround4,surround5,surround6,surround7,surround8],1)
             surrounds_keys.append(self.key_convs[i](surrounds))
             surrounds_querys.append(self.query_convs[i](cen_x))
