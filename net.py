@@ -55,6 +55,7 @@ class Net(nn.Module):
         elif model_name == 'res_UNet':
             self.model = res_UNet()
         elif model_name == 'IRPrune':
+            self.model = ASKCResUNet()
     def forward(self, img):
         return self.model(img)
 
