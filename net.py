@@ -54,6 +54,7 @@ class Net(nn.Module):
             self.model = GTransformerv11()
         elif model_name == 'res_UNet':
             self.model = res_UNet()
+        elif model_name == 'IRPrune':
     def forward(self, img):
         return self.model(img)
 

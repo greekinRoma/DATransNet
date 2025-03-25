@@ -21,3 +21,4 @@ from model.GTransformerv11.segmentation import GTransformerv11
 from model.SCTrans.segmentation import SCTrans
 from model.ISTDU_Net.ctNet.ctNet import ISTDU_Net
 from model.ResUNet.model_res_UNet import res_UNet
+from model.IRPrune.segmentation import ASKCResUNet
