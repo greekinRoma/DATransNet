@@ -36,13 +36,18 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 # Citation
 
 ```Citation
-@misc{hu2025datransnetdynamicattentiontransformer,
-      title={DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection}, 
-      author={Chen Hu and Yian Huang and Kexuan Li and Luping Zhang and Chang Long and Yiming Zhu and Tian Pu and Zhenming Peng},
-      year={2025},
-      eprint={2409.19599},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2409.19599}, 
-}
+@ARTICLE{10947728,
+  author={Hu, Chen and Huang, Yian and Li, Kexuan and Zhang, Luping and Long, Chang and Zhu, Yiming and Pu, Tian and Peng, Zhenming},
+  journal={IEEE Geoscience and Remote Sensing Letters}, 
+  title={DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={1-1},
+  keywords={Feature extraction;Transformers;Data mining;Training;Object detection;Image edge detection;Head;Measurement;Geoscience and remote sensing;Artificial intelligence;Infrared small target detection (ISTD);convolution neural network (CNN);Dynamic Attention Transformer;global feature extraction},
+  doi={10.1109/LGRS.2025.3557021}}
 ```
+
+# Weights
+
+We could offer the weights for IRSTD-1K (best_ckpt_for_IRSTD_1K.pth.tar) and NUDT-SIRST
