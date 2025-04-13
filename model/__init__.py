@@ -22,3 +22,4 @@ from model.SCTrans.segmentation import SCTrans
 from model.ISTDU_Net.ctNet.ctNet import ISTDU_Net
 from model.ResUNet.model_res_UNet import res_UNet
 from model.IRPrune.segmentation import ASKCResUNet
+from model.IRSAM.build_IRSAM import build_sam_IRSAM

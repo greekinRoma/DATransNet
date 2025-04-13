@@ -56,6 +56,8 @@ class Net(nn.Module):
             self.model = res_UNet()
         elif model_name == 'IRPrune':
             self.model = ASKCResUNet()
+        elif model_name == 'IRSAM':
+            self.model = build_sam_IRSAM(checkpoint='model/IRSAM/mobile_sam.pt',image_size=size)
     def forward(self, img):
         return self.model(img)
 

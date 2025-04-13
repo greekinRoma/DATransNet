@@ -129,7 +129,7 @@ class ASKCResNetFPN(nn.Module):
 
 
 class ASKCResUNet(nn.Module):
-    def __init__(self, layer_blocks=4, channels= [8, 16, 32, 64], fuse_mode='AsymBi'):
+    def __init__(self, layer_blocks=[4,4,4], channels= [8, 16, 32, 64], fuse_mode='AsymBi'):
         super(ASKCResUNet, self).__init__()
 
         stem_width = int(channels[0])
