@@ -46,18 +46,10 @@ class Net(nn.Module):
             self.model = ISTDU_Net()
         elif model_name == 'DATransNet':
             self.model = DATransNet(img_size=size)
-        elif model_name == 'GTransformerv8':
-            self.model = GTransformerv8()
-        elif model_name =='GTransformerv10':
-            self.model = GTransformerv10()
-        elif model_name =='GTransformerv11':
-            self.model = GTransformerv11()
         elif model_name == 'res_UNet':
             self.model = res_UNet()
         elif model_name == 'IRPrune':
             self.model = ASKCResUNet()
-        elif model_name == 'IRSAM':
-            self.model = build_sam_IRSAM(checkpoint='model/IRSAM/mobile_sam.pt',image_size=size)
     def forward(self, img):
         return self.model(img)
 
