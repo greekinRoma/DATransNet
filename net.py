@@ -48,8 +48,6 @@ class Net(nn.Module):
             self.model = DATransNet(img_size=size)
         elif model_name == 'res_UNet':
             self.model = res_UNet()
-        elif model_name == 'IRPrune':
-            self.model = ASKCResUNet()
     def forward(self, img):
         return self.model(img)
 
