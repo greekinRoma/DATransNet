@@ -27,21 +27,10 @@ class ExpansionContrastModule(nn.Module):
         self.sur_weight_layers = nn.ModuleList()
         self.sum_layers = nn.ModuleList()
         self.hidden_channels = self.tra_channels//len(self.shifts)
-        self.sum_weights = nn.ParameterList()
-        self.sur_weights = nn.ParameterList()
         for i in range(len(self.shifts)):
             self.query_convs.append(nn.Conv2d(in_channels=self.in_channels,out_channels=self.hidden_channels,kernel_size=1,stride=1,bias=False))
             self.key_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False))
             self.value_convs.append(nn.Conv2d(in_channels=self.in_channels*self.num_layer,out_channels=self.hidden_channels*self.num_layer,kernel_size=1,stride=1,bias=False)) 
-            self.sur_weight_layers.append(nn.Sequential(
-                nn.Conv2d(in_channels=in_channels,out_channels=in_channels,kernel_size=3,stride=1,padding=shifts[i],dilation=shifts[i]),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=in_channels,out_channels=8,kernel_size=1),
-                nn.Softmax(dim=1)
-            ))
-
-            self.sum_layers.append(nn.Conv2d(in_channels=in_channels*2,out_channels=in_channels,kernel_size=1,stride=1,bias=False,groups=self.in_channels))
-            self.sum_weights.append(nn.Parameter(torch.zeros((2),requires_grad=True)))
         self.out_conv = nn.Sequential(nn.Conv2d(in_channels=self.tra_channels,out_channels=self.out_channels,kernel_size=1,stride=1,bias=False),
                                       nn.BatchNorm2d(self.out_channels),
                                       nn.ReLU())
@@ -91,25 +80,18 @@ class ExpansionContrastModule(nn.Module):
         surrounds_querys = []
         surrounds_values = []
         for i in range(len(self.shifts)):
-            # print(cen.shape)
             x0, x1, x2, x3, x4, x5, x6, x7 = self.feature_padding(cen,self.shifts[i])
-            weight = torch.softmax(self.sum_weights[i],dim=0)
-            sum_weight = self.sur_weight_layers[i](cen)*weight[0]
-            sum_x = x0*sum_weight[:,0:1]+x1*sum_weight[:,1:2]+x2*sum_weight[:,2:3]+x3*sum_weight[:,3:4]+x4*sum_weight[:,4:5]+x5*sum_weight[:,5:6]+x6*sum_weight[:,6:7]+x7*sum_weight[:,7:8]
-            cen_x = cen * weight[1]
-            sum_x = sum_x + cen_x
-            cen_x = (x0+x1+x2+x3+x4+x5+x6+x7)/8*weight[0] + cen_x
-            surround1 = x0 - sum_x
-            surround2 = x1 - sum_x
-            surround3 = x2 - sum_x
-            surround4 = x3 - sum_x
-            surround5 = x4 - sum_x
-            surround6 = x5 - sum_x
-            surround7 = x6 - sum_x
-            surround8 = x7 - sum_x
+            surround1 = x0 - cen
+            surround2 = x1 - cen
+            surround3 = x2 - cen
+            surround4 = x3 - cen
+            surround5 = x4 - cen
+            surround6 = x5 - cen
+            surround7 = x6 - cen
+            surround8 = x7 - cen
             surrounds = torch.cat([surround1,surround2,surround3,surround4,surround5,surround6,surround7,surround8],1)
             surrounds_keys.append(self.key_convs[i](surrounds))
-            surrounds_querys.append(self.query_convs[i](cen_x))
+            surrounds_querys.append(self.query_convs[i](cen))
             surrounds_values.append(self.value_convs[i](surrounds))
         surrounds_keys = torch.stack(surrounds_keys,dim=2).view(b,self.num_heads,-1,w*h)
         surrounds_querys = torch.stack(surrounds_querys,dim=2).view(b,self.num_heads,-1,w*h)

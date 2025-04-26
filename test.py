@@ -24,7 +24,7 @@ parser.add_argument("--dataset_names", default=['IRSTD-1K'], type=str, nargs='+'
 parser.add_argument("--dataset_dir", default='./data', type=str, help="train_dataset_dir")
 parser.add_argument("--save", default='./log5', type=str, help="Save path of checkpoints")
 parser.add_argument("--seed", type=int, default=42, help="Threshold for test")
-parser.add_argument("--test_epo", type=str, default='26', help="Number of epoch for test")
+parser.add_argument("--test_epo", type=str, default='1', help="Number of epoch for test")
 
 global opt
 opt = parser.parse_args()

@@ -6,7 +6,7 @@ from .Gradient_attention.contrast_and_atrous import AttnContrastLayer
 from .CDCNs.Gradient_model import ExpansionContrastModule
 from .AttentionModule import *
 from .AttentionModule import _NonLocalBlockND
-from .Non_local.TGMandTRM import TGMandTRM
+from .CSPBlocks.InceptionNext import InceptionDWConv2d
 def get_activation(activation_type):
     activation_type = activation_type.lower()
     if hasattr(nn, activation_type):
@@ -14,12 +14,12 @@ def get_activation(activation_type):
     else:
         return nn.ReLU()
 class GFEM(nn.Module):
-    def __init__(self,channels,size):
+    def __init__(self,channels):
         super().__init__()
         self.down = nn.MaxPool2d((2,2))
         self.up = nn.Upsample(scale_factor=2,mode='bilinear')
         self.ca = ChannelAttention(in_planes=channels)
-        self.sp = TGMandTRM(h=size,c=channels)
+        self.sp = _NonLocalBlockND(in_channels=channels,inter_channels=channels//8)
         self.tra_conv_1 = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=1)
         self.tra_conv_2 = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=3,stride=1,padding=1)
         self.out_conv = nn.Conv2d(in_channels=channels,out_channels=channels,kernel_size=3,stride=1,padding=1)
@@ -120,14 +120,16 @@ class DATransNet(nn.Module):
         self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,tra_channels=in_channels*2,width=img_size//2,height=img_size//2,shifts=[1,3])
         self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,tra_channels=in_channels*2,width=img_size//4,height=img_size//4,shifts=[1,3])
         self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,tra_channels=in_channels*2,width=img_size//8,height=img_size//8,shifts=[1])
-        self.GFEM = TGMandTRM(h=img_size//16,c=in_channels*8,rank_num=32)
+        self.GFEM = GFEM(channels=in_channels*8)
         # self.decoder6 = nn.Sequential(nn.ConvTranspose2d(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,stride=2),CBN(in_channels*4,in_channels*4,kernel_size=1))
         self.decoder5 = UpBlock_attention(in_channels * 16, in_channels * 8, nb_Conv=2)
         self.decoder4 = UpBlock_attention(in_channels * 16, in_channels * 4, nb_Conv=2)
         self.decoder3 = UpBlock_attention(in_channels * 8, in_channels * 2, nb_Conv=2)
         self.decoder2 = UpBlock_attention(in_channels * 4, in_channels, nb_Conv=2)
         self.decoder1 = UpBlock_attention(in_channels * 2, in_channels, nb_Conv=2)
-        self.outc = nn.Conv2d(in_channels, n_classes, kernel_size=(1, 1), stride=(1, 1))
+        self.outc = nn.Sequential(
+            InceptionDWConv2d(in_channels=in_channels),
+            nn.Conv2d(in_channels, n_classes, kernel_size=(1, 1), stride=(1, 1)))
     def _make_layer(self, block, input_channels, output_channels, num_blocks=1):
         layers = []
         layers.append(block(input_channels, output_channels))
