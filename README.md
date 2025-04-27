@@ -45,7 +45,8 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
   keywords={Feature extraction;Transformers;Data mining;Training;Object detection;Image edge detection;Head;Measurement;Geoscience and remote sensing;Artificial intelligence;Infrared small target detection (ISTD);convolution neural network (CNN);Dynamic Attention Transformer;global feature extraction},
   doi={10.1109/LGRS.2025.3557021}}
 ```
-
+# Chinese Introduction
+The chinese introduction is accessiable at [https://blog.csdn.net/weixin_45358930/article/details/147562104?spm=1001.2014.3001.5501](https://blog.csdn.net/weixin_45358930/article/details/147562104?spm=1001.2014.3001.5501).
 # Weights
 
 We could offer the weights for IRSTD-1K [Weight_for_IRSTD_1K](best_ckpt_for_IRSTD_1K.pth.tar) and NUDT-SIRST
