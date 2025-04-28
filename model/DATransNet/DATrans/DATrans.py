@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch import nn
 import math
 from .contrast_and_atrous import AttnContrastLayer
-class ExpansionContrastModule(nn.Module):
+class DATrans(nn.Module):
     def __init__(self,in_channels,out_channels,tra_channels,width,height,shifts):
         super().__init__()
         #The hyper parameters settting

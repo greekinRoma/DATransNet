@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import Flatten
 import torch.nn.functional as F
 from .Gradient_attention.contrast_and_atrous import AttnContrastLayer
-from .CDCNs.Gradient_model import ExpansionContrastModule
+from .DATrans.DATrans import DATrans
 from .AttentionModule import *
 from .AttentionModule import _NonLocalBlockND
 from .CSPBlocks.InceptionNext import InceptionDWConv2d
@@ -116,10 +116,10 @@ class DATransNet(nn.Module):
         self.encoder4 = self._make_layer(block, in_channels * 8,  in_channels * 8, 1)  
         self.encoder5 = self._make_layer(block, in_channels*8 , in_channels *8  ,1)
         # self.encoder6 = self._make_layer(block, in_channels*4 , in_channels *4  ,1)
-        self.contras1 = ExpansionContrastModule(in_channels=in_channels*1,out_channels=in_channels*1,tra_channels=in_channels*1,width=img_size//1,height=img_size//1,shifts=[1,3])
-        self.contras2 = ExpansionContrastModule(in_channels=in_channels*2,out_channels=in_channels*2,tra_channels=in_channels*2,width=img_size//2,height=img_size//2,shifts=[1,3])
-        self.contras3 = ExpansionContrastModule(in_channels=in_channels*4,out_channels=in_channels*4,tra_channels=in_channels*2,width=img_size//4,height=img_size//4,shifts=[1,3])
-        self.contras4 = ExpansionContrastModule(in_channels=in_channels*8,out_channels=in_channels*8,tra_channels=in_channels*2,width=img_size//8,height=img_size//8,shifts=[1])
+        self.contras1 = DATrans(in_channels=in_channels*1,out_channels=in_channels*1,tra_channels=in_channels*1,width=img_size//1,height=img_size//1,shifts=[1,3])
+        self.contras2 = DATrans(in_channels=in_channels*2,out_channels=in_channels*2,tra_channels=in_channels*2,width=img_size//2,height=img_size//2,shifts=[1,3])
+        self.contras3 = DATrans(in_channels=in_channels*4,out_channels=in_channels*4,tra_channels=in_channels*2,width=img_size//4,height=img_size//4,shifts=[1,3])
+        self.contras4 = DATrans(in_channels=in_channels*8,out_channels=in_channels*8,tra_channels=in_channels*2,width=img_size//8,height=img_size//8,shifts=[1])
         self.GFEM = GFEM(channels=in_channels*8)
         # self.decoder6 = nn.Sequential(nn.ConvTranspose2d(in_channels=in_channels*4,out_channels=in_channels*4,kernel_size=2,stride=2),CBN(in_channels*4,in_channels*4,kernel_size=1))
         self.decoder5 = UpBlock_attention(in_channels * 16, in_channels * 8, nb_Conv=2)
