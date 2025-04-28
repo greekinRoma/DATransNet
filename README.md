@@ -1,6 +1,7 @@
 # DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection
 
- Official implementation of paper "DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection".
+ Official implementation of paper "DATransNet: Dynamic Attention Transformer Network for Infrared Small Target Detection". 
+ Our paper is accepted in [GRSL](https://ieeexplore.ieee.org/document/10947728).
 
 # Network Structure
 
@@ -49,4 +50,4 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 The chinese introduction is accessiable at [https://blog.csdn.net/weixin_45358930/article/details/147562104?spm=1001.2014.3001.5501](https://blog.csdn.net/weixin_45358930/article/details/147562104?spm=1001.2014.3001.5501).
 # Weights
 
-We could offer the weights for IRSTD-1K [Weight_for_IRSTD_1K](best_ckpt_for_IRSTD_1K.pth.tar) and NUDT-SIRST
+We could offer the weights for IRSTD-1K [Weight_for_IRSTD_1K](best_ckpt_for_IRSTD_1K.pth.tar) and NUDT-SIRST [weight_for_NUDT_SIRST](best_ckpt_fot_NUDT_IRSTD.pth.tar).
