@@ -259,9 +259,9 @@ if __name__ == '__main__':
 
 # 命令行如下：
 # 单个模型时：
-# python train_7.py --model_names DNANet --dataset_names NUDT-SIRST
+# python train.py --model_names DNANet --dataset_names NUDT-SIRST
 # 多个模型时：
-# python train_7.py --model_names ACM ALCNet AGPCNet DNANet UIUNet --dataset_names NUDT-SIRST IRSTD-1K SIRST-aug
+# python train.py --model_names ACM ALCNet AGPCNet DNANet UIUNet --dataset_names NUDT-SIRST IRSTD-1K SIRST-aug
 
 
 
