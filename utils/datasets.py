@@ -303,7 +303,7 @@ class NUAASIRSTSetLoader(Dataset):
         mask = np.array(mask, dtype=np.float32) / 255.0
 
 
-        if self.mode == 'trainval':
+        if self.mode == 'trainval' and self.mode=='test':
             h = 256
             w = 256
             img = cv2.resize(img, dsize=(h, w), interpolation=cv2.INTER_LINEAR)
