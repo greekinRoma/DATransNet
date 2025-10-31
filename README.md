@@ -36,6 +36,7 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 ![comparasions with other models](image.png)
 
 [《When Clusters Meet Shape Priors: A Synergistic Framework for Cluster Infrared Small Target Detection》](https://ieeexplore.ieee.org/document/11164479) shows a good performance in the two new datasets.
+
 ![comparasions with other models](SSCFNet.png)
 # Citation
 
