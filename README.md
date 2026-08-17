@@ -42,6 +42,7 @@ Or you can download in [Baidu Cloud](https://pan.baidu.com/s/19DOSJZTHC0KO-wKyGR
 
 [《Frequency Introduced Cascade Feature Fusion Network via Knowledge Distillation for Infrared Small Target Detection》](https://ieeexplore.ieee.org/document/11236448) shows a good performance in the two new datasets.
 
+[实战指南：如何用DATransNet提升红外小目标检测效果](https://blog.csdn.net/sea99/article/details/155114654?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-1-155114654-blog-155008147.235^v43^pc_blog_bottom_relevance_base5&spm=1001.2101.3001.4242.1&utm_relevant_index=4)
 # Citation
 
 ```Citation
